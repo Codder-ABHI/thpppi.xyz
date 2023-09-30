@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gpay</title>
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <script src="https://pay.google.com/gp/p/js/pay.js"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+<div class="container">
+ 
+    <form id="frm" action="/sign_up" method="POST">
+                    <h2 class="txt">Gpay Donation</h2>
+					<br>
+                    <input type="text" class="box" id="name" name="name" oninput="handleInput(this)" onblur="handleBlur(this)" placeholder="Name" required />
+                    <br>
+                    <input type="text" class="box" id="text" name="text" oninput="handleInput(this)" onblur="handleBlur(this)" placeholder="Your Text Here" required />
+                    <br>
+
+                    <input type="text" class="box" id="amount" name="amount"oninput="handleInput(this)" onblur="handleBlur(this)" placeholder="Amount" required />
+                    <br>
+					<img id="formImageEmpty" src="sedd.png" alt="Empty Image" class="form-image empty">
+			<img id="formImageFull" src="happy.png" alt="Full Image" class="form-image full">
+			<img id="formImagePartial" src="ok.png" alt="Partial Image" class="form-image partial">
+                   <button  value="Submit" id="hid" hidden></button>
+                    
+                </form>
+  <button id="buyButton">Pay</button>
+
+  <div class="drops">
+    <div class="drop drop-1"></div>
+    <div class="drop drop-2"></div>
+    <div class="drop drop-3"></div>
+    <div class="drop drop-4"></div>
+    <div class="drop drop-5"></div>
+  </div>
+</div>
+         
+
+  
+	<script>
+
+
+
+
+
+
+
+
+		
+		document.addEventListener('DOMContentLoaded', function() {
+			
+			const form = document.getElementById('frm');
+			const inputs = form.querySelectorAll('input');
+		  
+		
+			const formImageEmpty = document.getElementById('formImageEmpty');
+			const formImageFull = document.getElementById('formImageFull');
+			const formImagePartial = document.getElementById('formImagePartial');
+		  
+	
+			form.addEventListener('input', updateFormImage);
+		  
+		
+			function updateFormImage() {
+			  let allInputsEmpty = true;
+			  let allInputsFull = true;
+		  
+		
+			  inputs.forEach((input) => {
+				if (input.value.trim() !== '') {
+				  allInputsEmpty = false;
+				} else {
+				  allInputsFull = false;
+				}
+			  });
+		  
+			
+			  if (allInputsEmpty) {
+				formImageEmpty.style.display = 'block';
+				formImageFull.style.display = 'none';
+				formImagePartial.style.display = 'none';
+			  } else if (allInputsFull) {
+				formImageEmpty.style.display = 'none';
+				formImageFull.style.display = 'block';
+				formImagePartial.style.display = 'none';
+			  } else {
+				formImageEmpty.style.display = 'none';
+				formImageFull.style.display = 'none';
+				formImagePartial.style.display = 'block';
+			  }
+			}
+		  
+	
+			updateFormImage();
+		  });
+		  
+
+
+
+		function handleInput(input) {
+			input.classList.add("grow");
+			input.classList.remove("shrink");
+		  }
+	  
+		  function handleBlur(input) {
+			input.classList.remove("grow");
+			input.classList.add("shrink");
+	  
+			
+			setTimeout(function() {
+			  input.classList.remove("shrink");
+			}, 500);
+		  }
+    const button = document.getElementById('buyButton');
+     const nameInput = document.getElementById('name');
+  const textInput = document.getElementById('text');
+  const amountInput = document.getElementById('amount');
+		const paymentsClient = new google.payments.api.PaymentsClient({
+			environment: 'TEST',
+		});
+		if (button) {
+			button.addEventListener('click', () => {
+
+
+         if (nameInput.value.trim() === '' || textInput.value.trim() === '' || amountInput.value.trim() === '') {
+    alert('Please fill in all fields before proceeding to payment.');
+    return;
+  }
+				const paymentDataRequest = {
+					apiVersion: 2,
+					apiVersionMinor: 0,
+					allowedPaymentMethods: [{
+						type: 'CARD',
+						parameters: {
+							allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+							allowedCardNetworks: ['AMEX', 'DISCOVER', 'INTERAC', 'JCB', 'MASTERCARD', 'VISA'],
+						},
+						tokenizationSpecification: {
+							type: 'PAYMENT_GATEWAY',
+							parameters: {
+								gateway: 'example',
+								gatewayMerchantId: 'exampleGatewayMerchantId',
+							},
+						},
+					}],
+					merchantInfo: {
+						merchantId: 'your_merchant_id_here',
+						merchantName: 'Your Merchant Name',
+					},
+					transactionInfo: {
+						totalPriceStatus: 'FINAL',
+						totalPriceLabel: 'Total',
+						totalPrice: '10.00',
+						currencyCode: 'USD',
+						countryCode: 'US',
+					},
+				};
+				paymentsClient.loadPaymentData(paymentDataRequest)
+					.then((paymentData) => {
+         
+						console.log('Payment successful:', paymentData);
+			const btn = document.getElementById("hid");
+       btn.click();
+						setTimeout(function() {
+    window.location.href = "success.html";
+  }, 6000);
+
+		
+					})
+					.catch((error) => {
+						console.error('Payment failed:', error);
+					});
+			});
+		}
+	</script>
+</body>
+
+</html>
